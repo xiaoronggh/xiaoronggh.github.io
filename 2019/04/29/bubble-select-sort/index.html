@@ -10,7 +10,7 @@
     <link rel="icon" href="">
   
     
-  <title>bubble-select-sort | 奋斗的斗斗的博客</title>
+  <title>选择排序和冒泡排序 | 奋斗的斗斗的博客</title>
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/lib/jquery.fancybox.min.css">
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -56,7 +56,7 @@
   <div class="content">
     <article>
         <section class="content markdown-body">
-          <h1>bubble-select-sort</h1>
+          <h1>选择排序和冒泡排序</h1>
           <div class="post-meta">
             <i class="fa fa-calendar" aria-hidden="true"></i> <time>2019年04月29日</time>
             
@@ -79,9 +79,9 @@
             
           </div>
           <h1 id="选择排序和冒泡排序"><a href="#选择排序和冒泡排序" class="headerlink" title="选择排序和冒泡排序"></a>选择排序和冒泡排序</h1><p>选择排序和冒泡排序有些相似，所以把它们两个放在一起写，记录下</p>
-<h1 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h1><h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>对于一个给定的数组，首先找到数组中最小的元素，其次，将它和数组中的第一个元素交换位置（如果第一个元素即使最小元素，那么它就和自己交换）。再次，在剩下的元素中找到最小的元素，将它与数组的第二个元素交换位置。如此往复，直到将整个数组排序。</p>
-<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sort</span><span class="params">(Comparable[] arr)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> min = i;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; arr.length; j++) &#123;</span><br><span class="line">                <span class="comment">//求最小值</span></span><br><span class="line">                <span class="keyword">if</span> (less(arr[j], arr[min])) &#123;</span><br><span class="line">                    min = j;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//交换值</span></span><br><span class="line">            exch(arr, i, min);</span><br><span class="line">        &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-<h1 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h1>
+<h2 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h2><h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>对于一个给定的数组，首先找到数组中最小的元素，其次，将它和数组中的第一个元素交换位置（如果第一个元素即使最小元素，那么它就和自己交换）。再次，在剩下的元素中找到最小的元素，将它与数组的第二个元素交换位置。如此往复，直到将整个数组排序。</p>
+<h3 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">sort</span><span class="params">(Comparable[] arr)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> min = i;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; arr.length; j++) &#123;</span><br><span class="line">                <span class="comment">//求最小值</span></span><br><span class="line">                <span class="keyword">if</span> (less(arr[j], arr[min])) &#123;</span><br><span class="line">                    min = j;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//交换值</span></span><br><span class="line">            exch(arr, i, min);</span><br><span class="line">        &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h2>
         </section>
     </article>
     
@@ -92,7 +92,7 @@
     <div class="toc-container">
         <h1>目录</h1>
         <div class="content">
-            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#选择排序和冒泡排序"><span class="toc-number">1.</span> <span class="toc-text">选择排序和冒泡排序</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#选择排序"><span class="toc-number">2.</span> <span class="toc-text">选择排序</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#原理"><span class="toc-number">3.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#代码实现"><span class="toc-number">4.</span> <span class="toc-text">代码实现</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#冒泡排序"><span class="toc-number">5.</span> <span class="toc-text">冒泡排序</span></a></li></ol>
+            <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#选择排序和冒泡排序"><span class="toc-number">1.</span> <span class="toc-text">选择排序和冒泡排序</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#选择排序"><span class="toc-number">1.1.</span> <span class="toc-text">选择排序</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#原理"><span class="toc-number">1.1.1.</span> <span class="toc-text">原理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#代码实现"><span class="toc-number">1.1.2.</span> <span class="toc-text">代码实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#冒泡排序"><span class="toc-number">1.2.</span> <span class="toc-text">冒泡排序</span></a></li></ol></li></ol>
         </div>
     </div>
     
