@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang=zh-CN>
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+    <link rel="icon" href="">
+  
+    
+  <title>swift macos 纯代码自定义窗体 | 奋斗的斗斗的博客</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/lib/jquery.fancybox.min.css">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+  <header>
+  <div class="header-container">
+    <a class="logo" href="/">
+      <span>奋斗的斗斗的博客</span>
+    </a>
+    <ul class="right-header">
+      
+        <li class="nav-item">
+          
+            <a href="/" class="item-link">首页</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/about" class="item-link">关于</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/archives" class="item-link">归档</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/tags" class="item-link">标签</a>
+          
+        </li>
+      
+    </ul>
+  </div>
+</header>
+
+  <main id="post">
+  <div class="content">
+    <article>
+        <section class="content markdown-body">
+          <h1>swift macos 纯代码自定义窗体</h1>
+          <div class="post-meta">
+            <i class="fa fa-calendar" aria-hidden="true"></i> <time>2019年05月16日</time>
+            
+              | <i class="fa fa-folder-open-o" aria-hidden="true"></i> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/swift/">swift</a>
+  </div>
+
+
+
+            
+            
+              | 
+                  <i class="fa fa-tags" aria-hidden="true"></i>
+                
+               
+  <a href="/tags/#swift" class="tag">swift</a>
+
+  <a href="/tags/#自定义窗体" class="tag">自定义窗体</a>
+
+
+            
+          </div>
+          <p>网上的资料大部分都是使用<code>storyborad</code>进行开发，我刚学习swift就想自己用代码实现一个窗体的实现，所以有了这篇文章。<br>因为刚开始学习，所以好多地方我只是知道要这么写，不知道原理，所以有了解的可以一起交流下，<a href="https://github.com/xiaoronggh/xiaoronggh.github.io" target="_blank" rel="noopener">github地址</a>，欢迎留言。</p>
+<h2 id="创建一个swift-macos桌面项目"><a href="#创建一个swift-macos桌面项目" class="headerlink" title="创建一个swift macos桌面项目"></a>创建一个swift macos桌面项目</h2><ul>
+<li>打开xcode，选择创建一个xcode项目，选择macos，并选择<code>Cocoa App</code></li>
+</ul>
+<p><img src="/2019/05/16/swift-custom-window/swift-create-1.png" alt="创建xcode项目"></p>
+<ul>
+<li>输入项目名称，并选择磁盘路径保存项目</li>
+</ul>
+<p><img src="/2019/05/16/swift-custom-window/swift-create-1.png" alt="创建xcode项目"></p>
+<h2 id="删除项目中storyboard文件，并修改info-plist文件"><a href="#删除项目中storyboard文件，并修改info-plist文件" class="headerlink" title="删除项目中storyboard文件，并修改info.plist文件"></a>删除项目中storyboard文件，并修改info.plist文件</h2><p> 删除项目中storyboard文件，同时修改<code>info.plist</code>中<code>Main storyboard file base name</code>对应的值为空</p>
+<p><img src="/2019/05/16/swift-custom-window/delete-main-storyboard.png" alt="删除storyboard文件和修改info.plist"></p>
+<h2 id="创建一个NSApplication子类，并重写无参构造方法，给delegate赋值，同时修改info-plist中Principal-class的值为-PRODUCT-MODULE-NAME-Application"><a href="#创建一个NSApplication子类，并重写无参构造方法，给delegate赋值，同时修改info-plist中Principal-class的值为-PRODUCT-MODULE-NAME-Application" class="headerlink" title="创建一个NSApplication子类，并重写无参构造方法，给delegate赋值，同时修改info.plist中Principal class的值为$(PRODUCT_MODULE_NAME).Application"></a>创建一个<code>NSApplication</code>子类，并重写无参构造方法，给<code>delegate</code>赋值，同时修改info.plist中<code>Principal class</code>的值为<strong><em>$(PRODUCT_MODULE_NAME).Application</em></strong></h2><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Cocoa</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Application</span>: <span class="title">NSApplication</span> </span>&#123;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> myDelegate = <span class="type">AppDelegate</span>()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">override</span> <span class="keyword">init</span>() &#123;</span><br><span class="line">        <span class="keyword">super</span>.<span class="keyword">init</span>()</span><br><span class="line">        <span class="keyword">self</span>.delegate = myDelegate</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">required</span> <span class="keyword">init</span>?(coder: <span class="type">NSCoder</span>) &#123;</span><br><span class="line">        <span class="built_in">fatalError</span>(<span class="string">"init(coder:) has not been implemented"</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/05/16/swift-custom-window/application.png" alt="创建NSApplicaition的子类"></p>
+<h2 id="此时，在AppDelegate中的applicationDidFinishLaunching方法中编写显示窗体的代码"><a href="#此时，在AppDelegate中的applicationDidFinishLaunching方法中编写显示窗体的代码" class="headerlink" title="此时，在AppDelegate中的applicationDidFinishLaunching方法中编写显示窗体的代码"></a>此时，在<code>AppDelegate</code>中的<code>applicationDidFinishLaunching</code>方法中编写显示窗体的代码</h2><figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> Cocoa</span><br><span class="line"></span><br><span class="line"><span class="meta">@NSApplicationMain</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AppDelegate</span>: <span class="title">NSObject</span>, <span class="title">NSApplicationDelegate</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">applicationDidFinishLaunching</span><span class="params">(<span class="number">_</span> aNotification: Notification)</span></span> &#123;</span><br><span class="line">        <span class="comment">//设置显示窗体的大小</span></span><br><span class="line">        <span class="keyword">let</span> frame = <span class="type">NSMakeRect</span>(<span class="number">0</span>, <span class="number">0</span>, <span class="number">300</span>, <span class="number">300</span>)</span><br><span class="line">        <span class="comment">// 创建一个nsView对象，这里创建一个 NSTextView对象</span></span><br><span class="line">        <span class="keyword">let</span> view = <span class="type">NSTextView</span>(frame: frame)</span><br><span class="line">        <span class="comment">// 创建一个viewController 用来管理窗体内容显示</span></span><br><span class="line">        <span class="keyword">let</span> viewController = <span class="type">ViewController</span>()</span><br><span class="line">        viewController.view = view</span><br><span class="line">        <span class="comment">//创建一个窗体对象</span></span><br><span class="line">        <span class="keyword">let</span> window = <span class="type">NSWindow</span>(contentViewController: viewController)</span><br><span class="line">        </span><br><span class="line">        <span class="comment">// 显示窗体</span></span><br><span class="line">        window.makeKeyAndOrderFront(<span class="keyword">self</span>)</span><br><span class="line">        </span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">func</span> <span class="title">applicationWillTerminate</span><span class="params">(<span class="number">_</span> aNotification: Notification)</span></span> &#123;</span><br><span class="line">        <span class="comment">// Insert code here to tear down your application</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/2019/05/16/swift-custom-window/window-show.png" alt="控制创建窗体的显示"></p>
+
+        </section>
+    </article>
+    
+        
+  </div>
+  <aside>
+    
+    <div class="toc-container">
+        <h1>目录</h1>
+        <div class="content">
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#创建一个swift-macos桌面项目"><span class="toc-number">1.</span> <span class="toc-text">创建一个swift macos桌面项目</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删除项目中storyboard文件，并修改info-plist文件"><span class="toc-number">2.</span> <span class="toc-text">删除项目中storyboard文件，并修改info.plist文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#创建一个NSApplication子类，并重写无参构造方法，给delegate赋值，同时修改info-plist中Principal-class的值为-PRODUCT-MODULE-NAME-Application"><span class="toc-number">3.</span> <span class="toc-text">创建一个NSApplication子类，并重写无参构造方法，给delegate赋值，同时修改info.plist中Principal class的值为$(PRODUCT_MODULE_NAME).Application</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#此时，在AppDelegate中的applicationDidFinishLaunching方法中编写显示窗体的代码"><span class="toc-number">4.</span> <span class="toc-text">此时，在AppDelegate中的applicationDidFinishLaunching方法中编写显示窗体的代码</span></a></li></ol>
+        </div>
+    </div>
+    
+  </aside>
+</main>
+
+
+
+  <footer>
+  <div class="copyright">
+    <div>
+      &copy; 2019 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a>&nbsp
+    </div>
+    <div>
+      Theme by <a href="https://github.com/lewis-geek/hexo-theme-Aath" target="_blank">Aath</a>
+    </div>
+  </div>
+</footer>
+
+
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="/lib/in-view.min.js"></script>
+<script src="/lib/lodash.min.js"></script>
+<script>
+  var isDown = true
+  var oldY = 0
+  inView.offset(50)
+
+  document.body.addEventListener('touchstart', function(){});
+  
+  window.addEventListener('scroll', _.throttle(e => {
+    var currentY = window.scrollY
+    if((oldY - currentY) < 0) {
+      isDown = true
+    } else {
+      isDown = false
+    }
+    oldY = currentY
+  }, 250))
+
+  $("article img").each(function() {
+      var strA = "<a data-fancybox='gallery' href='" + this.src + "'></a>";
+      $(this).wrapAll(strA);
+  });
+
+  $('.toc-link').each(function() {
+      var href = $(this).attr("href");
+      
+      inView(href).on('exit', () => {
+        if (isDown) {
+          handleActive(href)
+        }
+      })
+
+      inView(href).on('enter', () => {
+        if (!isDown) {
+          handleActive(href)
+        }
+      })
+
+      this.onclick = function(e) {
+        var pos = $(href).offset().top - 10;
+        $("html,body").animate({scrollTop: pos}, 300);
+        setTimeout(() => {
+          handleActive(href)
+        }, 350)
+        return false
+      }
+  })
+
+  function handleActive(href) {
+    document.querySelectorAll('.toc-link').forEach(elm => {
+      elm.classList.remove('active')
+    })
+    document.querySelector(".toc [href='"+ href +"']").classList.add('active')
+  }
+</script>
+<script src="/lib/jquery.fancybox.min.js"></script>
+
+
+</body>
+</html>
