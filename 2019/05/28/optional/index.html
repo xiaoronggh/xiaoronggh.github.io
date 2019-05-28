@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang=zh-CN>
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+    <link rel="icon" href="">
+  
+    
+  <title>java 解决空指针的方案-optional | 奋斗的斗斗的博客</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/lib/jquery.fancybox.min.css">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+  <header>
+  <div class="header-container">
+    <a class="logo" href="/">
+      <span>奋斗的斗斗的博客</span>
+    </a>
+    <ul class="right-header">
+      
+        <li class="nav-item">
+          
+            <a href="/" class="item-link">首页</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/about" class="item-link">关于</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/archives" class="item-link">归档</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/tags" class="item-link">标签</a>
+          
+        </li>
+      
+    </ul>
+  </div>
+</header>
+
+  <main id="post">
+  <div class="content">
+    <article>
+        <section class="content markdown-body">
+          <h1>java 解决空指针的方案-optional</h1>
+          <div class="post-meta">
+            <i class="fa fa-calendar" aria-hidden="true"></i> <time>2019年05月28日</time>
+            
+              | <i class="fa fa-folder-open-o" aria-hidden="true"></i> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/java/">java</a>
+  </div>
+
+
+
+            
+            
+              | 
+                  <i class="fa fa-tags" aria-hidden="true"></i>
+                
+               
+  <a href="/tags/#java" class="tag">java</a>
+
+  <a href="/tags/#optional" class="tag">optional</a>
+
+
+            
+          </div>
+          <p>在java的编码中我们会经常遇到空指针的情况，为了解决空指针问题，我们经常需要使用if进行判断处理，我们代码中应该是我们的业务代码，而不是大量的对于空指针的校验代码。为了解决这个问题，在jdk 8 的版本中，官方为我们提供了<code>Optional</code>这个类的用来解决空指针的问题。</p>
+<h2 id="Optional-方法学习"><a href="#Optional-方法学习" class="headerlink" title="Optional 方法学习"></a>Optional 方法学习</h2><p>Optional 有一个私有的final属性 <code>value</code>用来保存需要进行判断的实例对象。</p>
+<h3 id="构造方法"><a href="#构造方法" class="headerlink" title="构造方法"></a>构造方法</h3><p>有一个无参构造方法，和一个有参构造方法，两个构造方法都是私有的，提供了静态方法来获得实例对象。</p>
+<h4 id="empty-方法"><a href="#empty-方法" class="headerlink" title="empty 方法"></a>empty 方法</h4><p>用来获取一个默认的，<code>value</code>为空的实例对象</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Optional&lt;?&gt; EMPTY = <span class="keyword">new</span> Optional&lt;&gt;();</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span>&lt;T&gt; Optional&lt;T&gt; <span class="title">empty</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    Optional&lt;T&gt; t = (Optional&lt;T&gt;) EMPTY;</span><br><span class="line">    <span class="keyword">return</span> t;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="of-方法"><a href="#of-方法" class="headerlink" title="of 方法"></a>of 方法</h4><p>这个方法没做其他工作，就是调用了有参构造方法，感觉主要是内部使用，我们工作中调用不多</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">Optional&lt;T&gt; <span class="title">of</span><span class="params">(T value)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Optional&lt;&gt;(value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="ofNullable-方法"><a href="#ofNullable-方法" class="headerlink" title="ofNullable 方法"></a>ofNullable 方法</h4><p>如果传入的是一个null对象，就返回默认的空实例对象，否则就调用上面的<code>of</code>方法。我们主要调用这个</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> &lt;T&gt; <span class="function">Optional&lt;T&gt; <span class="title">ofNullable</span><span class="params">(T value)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> value == <span class="keyword">null</span> ? empty() : of(value);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="常用方法"><a href="#常用方法" class="headerlink" title="常用方法"></a>常用方法</h3><h4 id="get"><a href="#get" class="headerlink" title="get"></a>get</h4><p>用来获取我们传入的实例对象，如果是一个null，会抛出异常。</p>
+<h4 id="isPresent"><a href="#isPresent" class="headerlink" title="isPresent"></a>isPresent</h4><p>判断我们传入的是否是一个null</p>
+<h4 id="ifPresent"><a href="#ifPresent" class="headerlink" title="ifPresent"></a>ifPresent</h4><p>需要传入一个<code>Consumer</code>对象，如果<code>value</code>是null就会调用<code>Consumer</code>的<code>accept</code>方法。我们主要会使用该方法</p>
+<h4 id="orElse"><a href="#orElse" class="headerlink" title="orElse"></a>orElse</h4><p>我们经常会有这样的业务，如果是null，我们需要给一个默认值，这个时候我们就可以使用该方法，这个方法支持传入一个默认值，如果<code>value</code>是空的，就会返回我们传入的默认值。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> T <span class="title">orElse</span><span class="params">(T other)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> value != <span class="keyword">null</span> ? value : other;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>还有 <code>map</code>,<code>filter</code> 等方法</p>
+<h3 id="使用场景"><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h3><p>我们定义一个Person类，用户演示代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">Person</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">()</span></span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">Person</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setName</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.name = name;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="获取姓名"><a href="#获取姓名" class="headerlink" title="获取姓名"></a>获取姓名</h4><p>用户修改显示的名字，从前段传入到后台，我们使用变量保存传入的值。假设用户没有设置值，后台处理的伪代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">String name = <span class="keyword">null</span>;<span class="comment">//前段传入的值</span></span><br><span class="line"><span class="comment">//非空的判断</span></span><br><span class="line"><span class="keyword">if</span>(name==<span class="keyword">null</span>)&#123;</span><br><span class="line">  name = <span class="string">"请设置您的用户名"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//Optional 代码</span></span><br><span class="line">name = Optional.ofNullable(name).orElse(<span class="string">"请设置您的用户名"</span>);</span><br></pre></td></tr></table></figure>
+<h4 id="获取姓名2"><a href="#获取姓名2" class="headerlink" title="获取姓名2"></a>获取姓名2</h4><p>我们使用Person对象来接收前段传入的姓名，这里我们认为Person的实例对象不为空</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Person p = <span class="keyword">new</span> Person();</span><br><span class="line"></span><br><span class="line">p = Optional.ofNullable(p).map(p-&gt;&#123;</span><br><span class="line">            p.setName(<span class="string">"zhangsan"</span>);</span><br><span class="line">            <span class="keyword">return</span> p;</span><br><span class="line">        &#125;).get();</span><br></pre></td></tr></table></figure>
+
+        </section>
+    </article>
+    
+        
+  </div>
+  <aside>
+    
+    <div class="toc-container">
+        <h1>目录</h1>
+        <div class="content">
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Optional-方法学习"><span class="toc-number">1.</span> <span class="toc-text">Optional 方法学习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#构造方法"><span class="toc-number">1.1.</span> <span class="toc-text">构造方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#empty-方法"><span class="toc-number">1.1.1.</span> <span class="toc-text">empty 方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#of-方法"><span class="toc-number">1.1.2.</span> <span class="toc-text">of 方法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ofNullable-方法"><span class="toc-number">1.1.3.</span> <span class="toc-text">ofNullable 方法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#常用方法"><span class="toc-number">1.2.</span> <span class="toc-text">常用方法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#get"><span class="toc-number">1.2.1.</span> <span class="toc-text">get</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#isPresent"><span class="toc-number">1.2.2.</span> <span class="toc-text">isPresent</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#ifPresent"><span class="toc-number">1.2.3.</span> <span class="toc-text">ifPresent</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#orElse"><span class="toc-number">1.2.4.</span> <span class="toc-text">orElse</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用场景"><span class="toc-number">1.3.</span> <span class="toc-text">使用场景</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#获取姓名"><span class="toc-number">1.3.1.</span> <span class="toc-text">获取姓名</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#获取姓名2"><span class="toc-number">1.3.2.</span> <span class="toc-text">获取姓名2</span></a></li></ol></li></ol></li></ol>
+        </div>
+    </div>
+    
+  </aside>
+</main>
+
+
+
+  <footer>
+  <div class="copyright">
+    <div>
+      &copy; 2019 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a>&nbsp
+    </div>
+    <div>
+      Theme by <a href="https://github.com/lewis-geek/hexo-theme-Aath" target="_blank">Aath</a>
+    </div>
+  </div>
+</footer>
+
+
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="/lib/in-view.min.js"></script>
+<script src="/lib/lodash.min.js"></script>
+<script>
+  var isDown = true
+  var oldY = 0
+  inView.offset(50)
+
+  document.body.addEventListener('touchstart', function(){});
+  
+  window.addEventListener('scroll', _.throttle(e => {
+    var currentY = window.scrollY
+    if((oldY - currentY) < 0) {
+      isDown = true
+    } else {
+      isDown = false
+    }
+    oldY = currentY
+  }, 250))
+
+  $("article img").each(function() {
+      var strA = "<a data-fancybox='gallery' href='" + this.src + "'></a>";
+      $(this).wrapAll(strA);
+  });
+
+  $('.toc-link').each(function() {
+      var href = $(this).attr("href");
+      
+      inView(href).on('exit', () => {
+        if (isDown) {
+          handleActive(href)
+        }
+      })
+
+      inView(href).on('enter', () => {
+        if (!isDown) {
+          handleActive(href)
+        }
+      })
+
+      this.onclick = function(e) {
+        var pos = $(href).offset().top - 10;
+        $("html,body").animate({scrollTop: pos}, 300);
+        setTimeout(() => {
+          handleActive(href)
+        }, 350)
+        return false
+      }
+  })
+
+  function handleActive(href) {
+    document.querySelectorAll('.toc-link').forEach(elm => {
+      elm.classList.remove('active')
+    })
+    document.querySelector(".toc [href='"+ href +"']").classList.add('active')
+  }
+</script>
+<script src="/lib/jquery.fancybox.min.js"></script>
+
+
+</body>
+</html>
