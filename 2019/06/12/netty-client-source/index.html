@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang=zh-CN>
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+    <link rel="icon" href="">
+  
+    
+  <title>netty客户端启动源码分析 | 奋斗的斗斗的博客</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/lib/jquery.fancybox.min.css">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+  <header>
+  <div class="header-container">
+    <a class="logo" href="/">
+      <span>奋斗的斗斗的博客</span>
+    </a>
+    <ul class="right-header">
+      
+        <li class="nav-item">
+          
+            <a href="/" class="item-link">首页</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/about" class="item-link">关于</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/archives" class="item-link">归档</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/tags" class="item-link">标签</a>
+          
+        </li>
+      
+    </ul>
+  </div>
+</header>
+
+  <main id="post">
+  <div class="content">
+    <article>
+        <section class="content markdown-body">
+          <h1>netty客户端启动源码分析</h1>
+          <div class="post-meta">
+            <i class="fa fa-calendar" aria-hidden="true"></i> <time>2019年06月12日</time>
+            
+              | <i class="fa fa-folder-open-o" aria-hidden="true"></i> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/netty/">netty</a>
+  </div>
+
+
+
+            
+            
+              | 
+                  <i class="fa fa-tag" aria-hidden="true"></i>
+                
+               
+  <a href="/tags/#netty" class="tag">netty</a>
+
+
+            
+          </div>
+          <p>一个使用netty创建的Echo客户端的启动程序的源码分析</p>
+<h2 id="源码启动程序"><a href="#源码启动程序" class="headerlink" title="源码启动程序"></a>源码启动程序</h2><p>先把客户端的代码列上，不懂的可以先看<a href="http://zhaoxiaorong.cn/2019/06/03/netty-study/">netty学习</a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">NioEventLoopGroup nioEventLoopGroup = <span class="keyword">new</span> NioEventLoopGroup();</span><br><span class="line">        Bootstrap bootstrap = <span class="keyword">new</span> Bootstrap();</span><br><span class="line">        ChannelFuture f = bootstrap.group(nioEventLoopGroup).channel(NioSocketChannel.class)</span><br><span class="line">                .remoteAddress(<span class="keyword">new</span> InetSocketAddress(<span class="string">"127.0.0.1"</span>, <span class="number">8082</span>))</span><br><span class="line">                .handler(<span class="keyword">new</span> ChannelInitializer() &#123;</span><br><span class="line"></span><br><span class="line">                    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">initChannel</span><span class="params">(Channel ch)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">                        ch.pipeline().addLast(<span class="keyword">new</span> MyChannelHandler());</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;).connect().sync();</span><br><span class="line">        f.channel().closeFuture().sync();</span><br></pre></td></tr></table></figure>
+<h2 id="配置信息"><a href="#配置信息" class="headerlink" title="配置信息"></a>配置信息</h2><p>客户端启动必需的四个参数信息</p>
+<ul>
+<li>group 用来管理多线程和进行io操作</li>
+<li>channel 用来指定channel的创建工厂</li>
+<li>handler 用来指定数据的处理器</li>
+<li>remoteAdderss 远程连接的地址信息，包含一个ip和端口号信息</li>
+</ul>
+<p>这参数都只是简单的进行的赋值操作，没有太复杂的逻辑，可以自己看下源码，这里我们重点分析connect方法。</p>
+<h2 id="连接"><a href="#连接" class="headerlink" title="连接"></a>连接</h2><h3 id="connect"><a href="#connect" class="headerlink" title="connect"></a>connect</h3><p>同样的我们先上代码，根据代码进行分析</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 校验 group 、 channelFactory、handler 是否为空</span></span><br><span class="line">      validate();</span><br><span class="line">      SocketAddress remoteAddress = <span class="keyword">this</span>.remoteAddress;</span><br><span class="line">      <span class="keyword">if</span> (remoteAddress == <span class="keyword">null</span>) &#123;</span><br><span class="line">          <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"remoteAddress not set"</span>);</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">return</span> doResolveAndConnect(remoteAddress, config.localAddress());</span><br></pre></td></tr></table></figure>
+<p>connect方法先是校验了必须的参数信息是否为空，紧接着就调用了真正的处理连接方法doResolveAndConnect。传入的两个参数，一个是远程的地址信息，一个是本地的地址信息，此时本地的地址信息为空，没有数据。</p>
+<h3 id="doResolveAndConnect"><a href="#doResolveAndConnect" class="headerlink" title="doResolveAndConnect"></a>doResolveAndConnect</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> ChannelFuture regFuture = initAndRegister();</span><br><span class="line"><span class="keyword">final</span> Channel channel = regFuture.channel();</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (regFuture.isDone()) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!regFuture.isSuccess()) &#123;</span><br><span class="line">        <span class="keyword">return</span> regFuture;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> doResolveAndConnect0(channel, remoteAddress, localAddress, channel.newPromise());</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// Registration future is almost always fulfilled already, but just in case it's not.</span></span><br><span class="line">    <span class="keyword">final</span> PendingRegistrationPromise promise = <span class="keyword">new</span> PendingRegistrationPromise(channel);</span><br><span class="line">    regFuture.addListener(<span class="keyword">new</span> ChannelFutureListener() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">operationComplete</span><span class="params">(ChannelFuture future)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">            <span class="comment">// Directly obtain the cause and do a null check so we only need one volatile read in case of a</span></span><br><span class="line">            <span class="comment">// failure.</span></span><br><span class="line">            Throwable cause = future.cause();</span><br><span class="line">            <span class="keyword">if</span> (cause != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// Registration on the EventLoop failed so fail the ChannelPromise directly to not cause an</span></span><br><span class="line">                <span class="comment">// IllegalStateException once we try to access the EventLoop of the Channel.</span></span><br><span class="line">                promise.setFailure(cause);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// Registration was successful, so set the correct executor to use.</span></span><br><span class="line">                <span class="comment">// See https://github.com/netty/netty/issues/2586</span></span><br><span class="line">                promise.registered();</span><br><span class="line">                doResolveAndConnect0(channel, remoteAddress, localAddress, promise);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="keyword">return</span> promise;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>initAndRegister 方法，调用channelFactory创建了一个Channel实例对象channel，并进行了初始化操作。在初始化的过程中，把handler添加到了channel的ChannelPipeline中。</p>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">init</span><span class="params">(Channel channel)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    ChannelPipeline p = channel.pipeline();</span><br><span class="line">    p.addLast(config.handler());</span><br><span class="line"></span><br><span class="line">    <span class="comment">//.. 下面省略了一些指定属性的操作</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此外，还把channel注册到了一个EventLoop实例对象了上，我们看下完整的initAndRegister方法的代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> ChannelFuture <span class="title">initAndRegister</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    Channel channel = <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        channel = channelFactory.newChannel();</span><br><span class="line">        init(channel);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        <span class="comment">//... 此处省略了代码</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> DefaultChannelPromise(<span class="keyword">new</span> FailedChannel(), GlobalEventExecutor.INSTANCE).setFailure(t);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//获取了我们配置的group方法，并调用了注册方法，内部是获取了一个EventLoop并注册</span></span><br><span class="line">    ChannelFuture regFuture = config().group().register(channel);</span><br><span class="line">    <span class="comment">//... 此处省略了代码</span></span><br><span class="line">    <span class="keyword">return</span> regFuture;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>初始化完毕之后，我们获得了一个Futrue对象，通过判断isDone走了两个不同的分支，通过调试代码，我知道它走的是else分支的代码。</p>
+<p>在分支代码中，创建了一个PendingRegistrationPromise的实例对象promise，这个对象是我们最后的返回值。</p>
+<p>同时，对regFuture添加了一个监听器，在监听器的操作完成的方法中，我们设置的promise的注册值，同时调用了doResolveAndConnect0方法，doResolveAndConnect0方法中包含真正的连接操作。</p>
+<p>在看这块代码的时候，刚开始有一个疑问就是先定义了PendingRegistrationPromise，后添加了监听器，如果已经结束了通知了所有的监听器，不是就没有作用了吗？感觉自己有点蠢，让我们直接来看一下实现：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// DefaultPromise 类中的实现</span></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Promise&lt;V&gt; <span class="title">addListener</span><span class="params">(GenericFutureListener&lt;? extends Future&lt;? <span class="keyword">super</span> V&gt;&gt; listener)</span> </span>&#123;</span><br><span class="line">    checkNotNull(listener, <span class="string">"listener"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="keyword">this</span>) &#123;</span><br><span class="line">        addListener0(listener);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (isDone()) &#123;</span><br><span class="line">        notifyListeners();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，在添加监听器的时候，就会直接判断如果已经结束了，就会直接调用通知监听器方法。</p>
+<p>接下来我们看下doResolveAndConnect0方法，我们直接上源码分析下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">doConnect</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">final</span> SocketAddress remoteAddress, <span class="keyword">final</span> SocketAddress localAddress, <span class="keyword">final</span> ChannelPromise connectPromise)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> Channel channel = connectPromise.channel();</span><br><span class="line">    channel.eventLoop().execute(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (localAddress == <span class="keyword">null</span>) &#123;</span><br><span class="line">                channel.connect(remoteAddress, connectPromise);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                channel.connect(remoteAddress, localAddress, connectPromise);</span><br><span class="line">            &#125;</span><br><span class="line">            connectPromise.addListener(ChannelFutureListener.CLOSE_ON_FAILURE);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，我们向EventLoop提交了一个任务，这个任务的内容就是跟远程服务器创建连接。我们知道，我们并没有给本地连接赋值，所以肯定会走两个参数的connect方法。我们再去看该方法的实现。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ChannelFuture <span class="title">connect</span><span class="params">(SocketAddress remoteAddress, ChannelPromise promise)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> pipeline.connect(remoteAddress, promise);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们可以看到，是调用了DefaultChannelPipeline的connect方法。其内部实现有点复杂，我这里就截取部分的代码来说明原理。</p>
+<p>在pipeline内部是调用了tail的connect方法，tail 是一个ChannelHandlerContext对象，这个connect方法使用的是AbstractChannelHandlerContext的实现，在该实现中是通过tail找到一个AbstractChannelHandlerContext为next，调用了next的invokeConnect方法。注意此处，如果是同一个线程之内，就会立即执行，如果不是，就提交一个任务到EventExecutor，也就是EventLoop。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">invokeConnect</span><span class="params">(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (invokeHandler()) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">            	<span class="comment">// 1 </span></span><br><span class="line">                ((ChannelOutboundHandler) handler()).connect(<span class="keyword">this</span>, remoteAddress, localAddress, promise);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">                notifyOutboundHandlerException(t, promise);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            connect(remoteAddress, localAddress, promise);</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在invokeConnect中会调用handler方法，获取到一个ChannelOutboundHandler类型的Handler实例对象，这里获取到的是DefaultChannelPipeline类内的一个内部类HeadContext。HeadContext继承了AbstractChannelHandlerContext，也实现了ChannelOutboundHandler, ChannelInboundHandler。connect方法内部是掉用了属性unsafe的connect方法。unsafe 是一个NioSocketChannel的一个内部类NioSocketChannelUnsafe。真正的实现是unsafe父类AbstractNioUnsafe的connect方法，此处确实是有点绕。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">void</span> <span class="title">connect</span><span class="params">(</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">final</span> SocketAddress remoteAddress, <span class="keyword">final</span> SocketAddress localAddress, <span class="keyword">final</span> ChannelPromise promise)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!promise.setUncancellable() || !ensureOpen(promise)) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (connectPromise != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">// Already a connect in process.</span></span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> ConnectionPendingException();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">boolean</span> wasActive = isActive();</span><br><span class="line">        <span class="keyword">if</span> (doConnect(remoteAddress, localAddress)) &#123;</span><br><span class="line">            fulfillConnectPromise(promise, wasActive);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">//... 省略</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (Throwable t) &#123;</span><br><span class="line">        promise.tryFailure(annotateConnectException(t, remoteAddress));</span><br><span class="line">        closeIfClosed();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+        </section>
+    </article>
+    
+        
+  </div>
+  <aside>
+    
+    <div class="toc-container">
+        <h1>目录</h1>
+        <div class="content">
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#源码启动程序"><span class="toc-number">1.</span> <span class="toc-text">源码启动程序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#配置信息"><span class="toc-number">2.</span> <span class="toc-text">配置信息</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#连接"><span class="toc-number">3.</span> <span class="toc-text">连接</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#connect"><span class="toc-number">3.1.</span> <span class="toc-text">connect</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#doResolveAndConnect"><span class="toc-number">3.2.</span> <span class="toc-text">doResolveAndConnect</span></a></li></ol></li></ol>
+        </div>
+    </div>
+    
+  </aside>
+</main>
+
+
+
+  <footer>
+  <div class="copyright">
+    <div>
+      &copy; 2019 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a>&nbsp
+    </div>
+    <div>
+      Theme by <a href="https://github.com/lewis-geek/hexo-theme-Aath" target="_blank">Aath</a>
+    </div>
+  </div>
+</footer>
+
+
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="/lib/in-view.min.js"></script>
+<script src="/lib/lodash.min.js"></script>
+<script>
+  var isDown = true
+  var oldY = 0
+  inView.offset(50)
+
+  document.body.addEventListener('touchstart', function(){});
+  
+  window.addEventListener('scroll', _.throttle(e => {
+    var currentY = window.scrollY
+    if((oldY - currentY) < 0) {
+      isDown = true
+    } else {
+      isDown = false
+    }
+    oldY = currentY
+  }, 250))
+
+  $("article img").each(function() {
+      var strA = "<a data-fancybox='gallery' href='" + this.src + "'></a>";
+      $(this).wrapAll(strA);
+  });
+
+  $('.toc-link').each(function() {
+      var href = $(this).attr("href");
+      
+      inView(href).on('exit', () => {
+        if (isDown) {
+          handleActive(href)
+        }
+      })
+
+      inView(href).on('enter', () => {
+        if (!isDown) {
+          handleActive(href)
+        }
+      })
+
+      this.onclick = function(e) {
+        var pos = $(href).offset().top - 10;
+        $("html,body").animate({scrollTop: pos}, 300);
+        setTimeout(() => {
+          handleActive(href)
+        }, 350)
+        return false
+      }
+  })
+
+  function handleActive(href) {
+    document.querySelectorAll('.toc-link').forEach(elm => {
+      elm.classList.remove('active')
+    })
+    document.querySelector(".toc [href='"+ href +"']").classList.add('active')
+  }
+</script>
+<script src="/lib/jquery.fancybox.min.js"></script>
+
+
+</body>
+</html>
