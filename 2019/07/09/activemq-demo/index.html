@@ -119,7 +119,7 @@
 <p>可以看到，每一个消息都消费了两次。</p>
 <h2 id="ActiveMQ-集群"><a href="#ActiveMQ-集群" class="headerlink" title="ActiveMQ 集群"></a>ActiveMQ 集群</h2><p>我们现在把ActiveMQ的安装包直接复制一份,修改cnf文件夹下面的activemq.xml和jetty.xml中的端口号</p>
 <p>activemq.xml 文件修改如下：</p>
-<p><img src="/2019/07/09/activemq-demo/activcemq-xml-port.png" alt="activeMq 修改端口号"></p>
+<p><img src="/2019/07/09/activemq-demo/active-xml-port.png" alt="activeMq 修改端口号"></p>
 <p>jetty.xml 文件修改如下：</p>
 <p><img src="/2019/07/09/activemq-demo/jetty-xml-port.png" alt="activeMq 修改端口号"></p>
 <p>修改完毕之后，这个新的activeMQ就可以直接启动了，但是他还是一个独立的，跟我们之前启动的并没有关联，这个时候，我们需要在activemq的broker节点中添加如下的配置：</p>
