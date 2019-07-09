@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang=zh-CN>
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+    <link rel="icon" href="">
+  
+    
+  <title>activemq 使用 | 奋斗的斗斗的博客</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/lib/jquery.fancybox.min.css">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+  <header>
+  <div class="header-container">
+    <a class="logo" href="/">
+      <span>奋斗的斗斗的博客</span>
+    </a>
+    <ul class="right-header">
+      
+        <li class="nav-item">
+          
+            <a href="/" class="item-link">首页</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/about" class="item-link">关于</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/archives" class="item-link">归档</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/tags" class="item-link">标签</a>
+          
+        </li>
+      
+    </ul>
+  </div>
+</header>
+
+  <main id="post">
+  <div class="content">
+    <article>
+        <section class="content markdown-body">
+          <h1>activemq 使用</h1>
+          <div class="post-meta">
+            <i class="fa fa-calendar" aria-hidden="true"></i> <time>2019年07月09日</time>
+            
+              | <i class="fa fa-folder-open-o" aria-hidden="true"></i> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/activemq/">activemq</a>
+  </div>
+
+
+
+            
+            
+              | 
+                  <i class="fa fa-tags" aria-hidden="true"></i>
+                
+               
+  <a href="/tags/#activemq" class="tag">activemq</a>
+
+  <a href="/tags/#mq" class="tag">mq</a>
+
+
+            
+          </div>
+          <p>ActiveMQ 作为apache的开源消息中间件，有广泛的使用。今天一起来学习一下它的使用。</p>
+<p>ActiveMQ 使用java开发，支持jms，并且支持多种语言的客户端，使用kahadb作为消息存储。kahadb 是一个基于文件支持事务的消息存储器，是一个可靠的，高性能的，可扩展的消息存储器。ActiveMQ还可以使用数据库作为存储。</p>
+<h2 id="ActiveMQ-安装"><a href="#ActiveMQ-安装" class="headerlink" title="ActiveMQ 安装"></a>ActiveMQ 安装</h2><p>ActiveMQ 的安装非常的简单，先根据你的系统<a href="http://activemq.apache.org/components/classic/download/" target="_blank" rel="noopener">下载</a>对应的安装文件。界面如下图所示：</p>
+<p><img src="/2019/07/09/activemq-demo/activemq-download.png" alt="下载界面"></p>
+<p>我使用的是mac系统，ActiveMQ并没有专门提供mac系统的安装包，我们直接下载linux版本的就可以。</p>
+<p>下载完毕之后，放到你的软件目录下，使用命令 <code>tar -xvf</code>    进行解压。目录结构如下:</p>
+<p><img src="/2019/07/09/activemq-demo/activemq-dir-list.png" alt="activemq目录结构"></p>
+<p>不需要进行其他额外的配置，我们就可以直接启动activeMQ。进入bin目录使用命令<code>./activemq start</code>进行启动。</p>
+<p>启动完毕之后，我们就可以在浏览器中使用地址<code>http://localhost:8161</code>进行访问了。进入管理页面需要账号密码，默认都是<code>admin</code>。管理界面如下：</p>
+<p><img src="/2019/07/09/activemq-demo/activemq-manager.png" alt="activemq管理界面"></p>
+<h2 id="ActiveMQ-消息类型"><a href="#ActiveMQ-消息类型" class="headerlink" title="ActiveMQ 消息类型"></a>ActiveMQ 消息类型</h2><h3 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h3><p>Queue 是点对点的形式，一个消息只能有一个消费者进行消费，不支持多个消费者。如果没有消费者进行消息，消息会进行保存，直到有消费者进行消费。</p>
+<h3 id="Topic"><a href="#Topic" class="headerlink" title="Topic"></a>Topic</h3><p>Topic 是发布订阅的形式，一个消息可以有多个消费者进行订阅，如果没有消费者进行消费，那么消息会丢失。</p>
+<h2 id="Queue-生产者"><a href="#Queue-生产者" class="headerlink" title="Queue 生产者"></a>Queue 生产者</h2><p>假设我们已经有了一个空的maven项目，我们导入需要的jar包。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>javax.jms<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>jms<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.activemq<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>activemq-core<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.5.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.activemq<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>activemq-pool<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.7.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-api<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.6.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>slf4j-log4j12<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.6.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.2.16<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 默认连接是。failover://tcp://localhost:61616 </span></span><br><span class="line">ConnectionFactory connectionFactory = <span class="keyword">new</span> ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_BROKER_URL);</span><br><span class="line">Connection connection = connectionFactory.createConnection();</span><br><span class="line">connection.start();</span><br><span class="line">Session session = connection.createSession(<span class="keyword">false</span>, Session.AUTO_ACKNOWLEDGE);</span><br><span class="line"><span class="comment">// 创建一个Queue 名字是test-mq-queue</span></span><br><span class="line">Queue queue = session.createQueue(<span class="string">"test-mq-queue"</span>);</span><br><span class="line"><span class="comment">//创建生产者</span></span><br><span class="line">MessageProducer messageProducer = session.createProducer(queue);</span><br><span class="line"><span class="comment">// 发送10个消息</span></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">    messageProducer.send(session.createTextMessage(<span class="string">"hello,I am producer "</span> + i));</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//关闭连接</span></span><br><span class="line">connection.close();</span><br></pre></td></tr></table></figure>
+<p>failover 是activvmq的容错协议，你可以配置多个连接，比如：failover://(tcp://localhost:61616,tcp://localhost:61615)当一个不可用时，会自动的切换到另外一个。</p>
+<p>我们刚才生产了10个消息，我们可以看下管理后台，可以看到我们消息已经正确的发送到了服务端。</p>
+<p><img src="/2019/07/09/activemq-demo/queue-list.png" alt="queue 消息"></p>
+<h2 id="Queue-消费者"><a href="#Queue-消费者" class="headerlink" title="Queue 消费者"></a>Queue 消费者</h2><p>需要的jar包同生产者，不重复。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 默认连接是。failover://tcp://localhost:61616 </span></span><br><span class="line">ConnectionFactory connectionFactory = <span class="keyword">new</span> ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_BROKER_URL);</span><br><span class="line">Connection connection = connectionFactory.createConnection();</span><br><span class="line">connection.start();</span><br><span class="line">Session session = connection.createSession(<span class="keyword">false</span>, Session.AUTO_ACKNOWLEDGE);</span><br><span class="line"><span class="comment">// 创建一个Queue 名字是test-mq-queue</span></span><br><span class="line">Queue queue = session.createQueue(<span class="string">"test-mq-queue"</span>);</span><br><span class="line"><span class="comment">//创建消费者</span></span><br><span class="line">MessageConsumer messageConsumer = session.createConsumer(queue);</span><br><span class="line"><span class="comment">//1、</span></span><br><span class="line"><span class="comment">// 这个方法会阻塞直到返回一个消息，或者我们也可以穿入一个超时参数。</span></span><br><span class="line">Message message = messageConsumer.receive();</span><br><span class="line"><span class="comment">//因为我们知道我们穿入的是一个文本消息，所以么一直接强转,并打印</span></span><br><span class="line">System.out.println(((TextMessage)message).getText());</span><br><span class="line"></span><br><span class="line"><span class="comment">//2、我们可以实现MessageListener接口，并重写onMessage方法，这样再有消息传入的时候就会直接调用该方法</span></span><br><span class="line"><span class="comment">// 需要在MessageConsumer上设置我们的监听器</span></span><br><span class="line"></span><br><span class="line"> messageConsumer.setMessageListener(<span class="keyword">new</span> MQMessageConsumer());</span><br><span class="line"></span><br><span class="line"> <span class="class"><span class="keyword">class</span> <span class="title">MQMessageConsumer</span> <span class="keyword">implements</span> <span class="title">MessageListener</span></span>&#123;</span><br><span class="line"> 	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(Message message)</span></span>&#123;</span><br><span class="line"> 		<span class="comment">// do something ...</span></span><br><span class="line"> 	&#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>我们需要注意的是，如果我们使用receive方法来接收消息，那么我们是不可以再去设置一个监听器的，否则会发生异常</p>
+<h2 id="Topic-消费者"><a href="#Topic-消费者" class="headerlink" title="Topic 消费者"></a>Topic 消费者</h2><p>Topic 模式下，如果没有消费者，消息会丢失，所以，我们先创建一个Topic消费者。</p>
+<p>我们看到创建Session的代码都是一致的，所以我们把创建session的代码抽象出来，作为一个工具类。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MQUtil</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String BROKER_URL = ActiveMQConnection.DEFAULT_BROKER_URL;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Session session;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> Connection connection;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> String url;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MQUtil</span><span class="params">(String url)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.url = url;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Session <span class="title">getSession</span><span class="params">()</span> <span class="keyword">throws</span> JMSException </span>&#123;</span><br><span class="line">        ConnectionFactory connectionFactory = <span class="keyword">new</span> ActiveMQConnectionFactory(url);</span><br><span class="line">        connection = connectionFactory.createConnection();</span><br><span class="line">        connection.start();</span><br><span class="line">        session = connection.createSession(<span class="keyword">false</span>, Session.AUTO_ACKNOWLEDGE);</span><br><span class="line">        <span class="keyword">return</span> session;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> <span class="keyword">throws</span> JMSException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (connection != <span class="keyword">null</span>) &#123;</span><br><span class="line">            connection.close();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建一个消费者</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MQTopicConsumer</span> <span class="keyword">implements</span> <span class="title">MessageListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TOPIC_NAME = <span class="string">"test-topic-name"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> JMSException </span>&#123;</span><br><span class="line"></span><br><span class="line">        MQUtil mqUtil = <span class="keyword">new</span> MQUtil(MQUtil.BROKER_URL);</span><br><span class="line"></span><br><span class="line">        Session session = mqUtil.getSession();</span><br><span class="line"></span><br><span class="line">        Topic topic = session.createTopic(TOPIC_NAME);</span><br><span class="line"></span><br><span class="line">        MessageConsumer messageConsumer = session.createConsumer(topic);</span><br><span class="line"></span><br><span class="line">        messageConsumer.setMessageListener(<span class="keyword">new</span> MQTopicConsumer());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(Message message)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (message <span class="keyword">instanceof</span> TextMessage) &#123;</span><br><span class="line">            TextMessage textMessage = (TextMessage) message;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                String text = textMessage.getText();</span><br><span class="line">                System.out.println(text);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (JMSException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.err.println(<span class="string">"类型错误"</span> + message.getClass());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，代码跟Queue大部分都是一样的，而且还非常的简单。</p>
+<h2 id="Topic-生产者"><a href="#Topic-生产者" class="headerlink" title="Topic 生产者"></a>Topic 生产者</h2><p>我们这里直接上代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MQTopicProducer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TOPIC_NAME = <span class="string">"test-topic-name"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> JMSException </span>&#123;</span><br><span class="line"></span><br><span class="line">        MQUtil mqUtil = <span class="keyword">new</span> MQUtil(MQUtil.BROKER_URL);</span><br><span class="line"></span><br><span class="line">        Session session = mqUtil.getSession();</span><br><span class="line"></span><br><span class="line">        Topic topic = session.createTopic(TOPIC_NAME);</span><br><span class="line"></span><br><span class="line">        MessageProducer producer = session.createProducer(topic);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;</span><br><span class="line">            producer.send(session.createTextMessage(<span class="string">" I am topic "</span> + i));</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        mqUtil.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们先启动消费者，再启动生产者。控制台输入如下：</p>
+<p><img src="/2019/07/09/activemq-demo/topic-consumer-console.png" alt="topic控制台打印"></p>
+<p>我们知道Topic是可以进行多消费的，我们对消费者代码进行下更改，创建两个消费者进行消费，看看控台的打印是什么样的。</p>
+<p>代码修改如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MQTopicConsumer</span> <span class="keyword">extends</span> <span class="title">Thread</span> <span class="keyword">implements</span> <span class="title">MessageListener</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String TOPIC_NAME = <span class="string">"test-topic-name"</span>;</span><br><span class="line">    <span class="comment">//用来设置线程的名字</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MQTopicConsumer</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    	<span class="comment">//创建两个线程，并分别修改线程的名字</span></span><br><span class="line">        <span class="keyword">new</span> MQTopicConsumer(<span class="string">"A"</span>).start();</span><br><span class="line">        <span class="keyword">new</span> MQTopicConsumer(<span class="string">"B"</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            MQUtil mqUtil = <span class="keyword">new</span> MQUtil(MQUtil.BROKER_URL);</span><br><span class="line"></span><br><span class="line">            Session session = mqUtil.getSession();</span><br><span class="line"></span><br><span class="line">            Topic topic = session.createTopic(TOPIC_NAME);</span><br><span class="line"></span><br><span class="line">            MessageConsumer messageConsumer = session.createConsumer(topic);</span><br><span class="line"></span><br><span class="line">            messageConsumer.setMessageListener(<span class="keyword">this</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (JMSException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onMessage</span><span class="params">(Message message)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (message <span class="keyword">instanceof</span> TextMessage) &#123;</span><br><span class="line">            TextMessage textMessage = (TextMessage) message;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                String text = textMessage.getText();</span><br><span class="line">                <span class="comment">//打印当前线程的名字</span></span><br><span class="line">                System.out.println(<span class="keyword">this</span>.getName() + <span class="string">"-"</span> + text);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (JMSException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            System.err.println(<span class="string">"类型错误"</span> + message.getClass());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在我们启动消费者，并启动生产者，我们修改消息的数量为5个。控制台如下：</p>
+<p><img src="/2019/07/09/activemq-demo/topic-consumer-console2.png" alt="topic控制台打印"></p>
+<p>可以看到，每一个消息都消费了两次。</p>
+<h2 id="ActiveMQ-集群"><a href="#ActiveMQ-集群" class="headerlink" title="ActiveMQ 集群"></a>ActiveMQ 集群</h2><p>我们现在把ActiveMQ的安装包直接复制一份,修改cnf文件夹下面的activemq.xml和jetty.xml中的端口号</p>
+<p>activemq.xml 文件修改如下：</p>
+<p><img src="/2019/07/09/activemq-demo/activcemq-xml-port.png" alt="activeMq 修改端口号"></p>
+<p>jetty.xml 文件修改如下：</p>
+<p><img src="/2019/07/09/activemq-demo/jetty-xml-port.png" alt="activeMq 修改端口号"></p>
+<p>修改完毕之后，这个新的activeMQ就可以直接启动了，但是他还是一个独立的，跟我们之前启动的并没有关联，这个时候，我们需要在activemq的broker节点中添加如下的配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">networkConnectors</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">networkConnector</span> <span class="attr">uri</span>=<span class="string">"static:(tcp://127.0.0.1:61616)"</span> <span class="attr">duplex</span>=<span class="string">"true"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">networkConnectors</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>duplex 表示开启双工。</p>
+<p>这里我们给这两个ActiveMQ做一个编号，第一个为A，第二个为B</p>
+<p>这个时候，如果一个新的消费者连接上了B，一个生产者往A推送了新的消息，那么这个时候B上的消费者就可以消费到A上消息</p>
+<p>有这样的一个场景：</p>
+<p>生产者往A上推送了10个消息，消费者在B上消费了一个消息，那么这个时候，ActiveMQ会把A上的10个消息复制到B上。这个时候B突然停机了，那么剩余的9个消息就不能进行消费了。</p>
+<p>网上查询说是设置一个消息回流，就是在policyEntries的节点下添加一个新的policyEntrie，如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">policyEntry</span> <span class="attr">queue</span>=<span class="string">"&gt;"</span> <span class="attr">enableAudit</span>=<span class="string">"false"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">networkBridgeFilterFactory</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">conditionalNetworkBridgeFilterFactory</span> <span class="attr">replayWhenNoConsumers</span> = <span class="string">"true"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">networkBridgeFilterFactory</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">policyEntry</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>就可以解决，但是我试了，并不好使，不知道是哪里问题。</p>
+<p>问题解决：<br>消息回流是在没有消费者的情况下，就是B上没有消费者，A上有了新的消费者的时候，消费会再次流回A。需要注意的是消息回流的配置需要两个ActiveMQ都进行配置</p>
+
+        </section>
+    </article>
+    
+        
+  </div>
+  <aside>
+    
+    <div class="toc-container">
+        <h1>目录</h1>
+        <div class="content">
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#ActiveMQ-安装"><span class="toc-number">1.</span> <span class="toc-text">ActiveMQ 安装</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ActiveMQ-消息类型"><span class="toc-number">2.</span> <span class="toc-text">ActiveMQ 消息类型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Queue"><span class="toc-number">2.1.</span> <span class="toc-text">Queue</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Topic"><span class="toc-number">2.2.</span> <span class="toc-text">Topic</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Queue-生产者"><span class="toc-number">3.</span> <span class="toc-text">Queue 生产者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Queue-消费者"><span class="toc-number">4.</span> <span class="toc-text">Queue 消费者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Topic-消费者"><span class="toc-number">5.</span> <span class="toc-text">Topic 消费者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Topic-生产者"><span class="toc-number">6.</span> <span class="toc-text">Topic 生产者</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#ActiveMQ-集群"><span class="toc-number">7.</span> <span class="toc-text">ActiveMQ 集群</span></a></li></ol>
+        </div>
+    </div>
+    
+  </aside>
+</main>
+
+
+
+  <footer>
+  <div class="copyright">
+    <div>
+      &copy; 2019 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a>&nbsp
+    </div>
+    <div>
+      Theme by <a href="https://github.com/lewis-geek/hexo-theme-Aath" target="_blank">Aath</a>
+    </div>
+  </div>
+</footer>
+
+
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="/lib/in-view.min.js"></script>
+<script src="/lib/lodash.min.js"></script>
+<script>
+  var isDown = true
+  var oldY = 0
+  inView.offset(50)
+
+  document.body.addEventListener('touchstart', function(){});
+  
+  window.addEventListener('scroll', _.throttle(e => {
+    var currentY = window.scrollY
+    if((oldY - currentY) < 0) {
+      isDown = true
+    } else {
+      isDown = false
+    }
+    oldY = currentY
+  }, 250))
+
+  $("article img").each(function() {
+      var strA = "<a data-fancybox='gallery' href='" + this.src + "'></a>";
+      $(this).wrapAll(strA);
+  });
+
+  $('.toc-link').each(function() {
+      var href = $(this).attr("href");
+      
+      inView(href).on('exit', () => {
+        if (isDown) {
+          handleActive(href)
+        }
+      })
+
+      inView(href).on('enter', () => {
+        if (!isDown) {
+          handleActive(href)
+        }
+      })
+
+      this.onclick = function(e) {
+        var pos = $(href).offset().top - 10;
+        $("html,body").animate({scrollTop: pos}, 300);
+        setTimeout(() => {
+          handleActive(href)
+        }, 350)
+        return false
+      }
+  })
+
+  function handleActive(href) {
+    document.querySelectorAll('.toc-link').forEach(elm => {
+      elm.classList.remove('active')
+    })
+    document.querySelector(".toc [href='"+ href +"']").classList.add('active')
+  }
+</script>
+<script src="/lib/jquery.fancybox.min.js"></script>
+
+
+</body>
+</html>
