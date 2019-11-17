@@ -10,7 +10,7 @@
     <link rel="icon" href="">
   
     
-  <title>关于 | 奋斗的斗斗的博客</title>
+  <title>mac-use | 奋斗的斗斗的博客</title>
   <link rel="stylesheet" href="/style.css">
   <link rel="stylesheet" href="/lib/jquery.fancybox.min.css">
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -32,7 +32,7 @@
       
         <li class="nav-item">
           
-            <a href="/about" class="item-link active">关于</a>
+            <a href="/about" class="item-link">关于</a>
           
         </li>
       
@@ -56,21 +56,55 @@
   <div class="content">
     <article>
         <section class="content markdown-body">
-          <h1>关于</h1>
+          <h1>mac-use</h1>
           <div class="post-meta">
-            <i class="fa fa-calendar" aria-hidden="true"></i> <time>2019年10月11日</time>
+            <i class="fa fa-calendar" aria-hidden="true"></i> <time>2019年09月19日</time>
             
+              | <i class="fa fa-folder-open-o" aria-hidden="true"></i> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/mac/">mac</a>
+  </div>
+
+
+
+            
+            
+              | 
+                  <i class="fa fa-tag" aria-hidden="true"></i>
+                
+               
+  <a href="/tags/#mac" class="tag">mac</a>
+
+
             
           </div>
-          <p>这里是奋斗的斗斗的博客</p>
-<p>使用了<code>nodejs</code>,<code>github</code>,<code>hexo</code>进行搭建，欢迎在<a href="https://github.com/xiaoronggh/xiaoronggh.github.io" target="_blank" rel="noopener">留言</a>，一起交流学习</p>
-
+          <p>总结一些mac使用技巧</p>
+<h2 id="快捷键"><a href="#快捷键" class="headerlink" title="快捷键"></a>快捷键</h2><ul>
+<li>Shift + Command + 4 mac 电脑自带的截图快捷键，截图完毕之后会保存到桌面</li>
+</ul>
+<h2 id="删除账号重新设置"><a href="#删除账号重新设置" class="headerlink" title="删除账号重新设置"></a>删除账号重新设置</h2><ul>
+<li>开始时按住<code>Command + S</code> 或者是 <code>Command + S + fn</code>进入单一用户模式，就是一个命令行界面</li>
+<li>执行 <code>/sbin/fsck -y</code> 执行硬盘检测, 这一步可以省略</li>
+<li>执行 <code>/sbin/mount -uaw</code>加载文件系统</li>
+<li>执行 <code>rm /var/db/.AppleSetupDone</code> 删除初始化设置时的OSX生成的隐藏文件<strong><em>.AppleSetupDone</em></strong></li>
+<li>执行 <code>reboot</code> 重启电脑，会再次进入重新设置页面</li>
+</ul>
+<p>注意：有时候你会发现开机时，你明明按了<code>Command + S</code> 或者是 <code>Command + S + fn</code>可就是没有进入单一用户模式，<br>还是需要你输入密码，如果你知道密码，输入密码之后就能进入单一用户模式了，否则不能进入。就不要一直关机重启试了</p>
+<h2 id="mac-更新系统git命令不好使"><a href="#mac-更新系统git命令不好使" class="headerlink" title="mac 更新系统git命令不好使"></a>mac 更新系统git命令不好使</h2><p>因为用的是公司的电脑，默认是开发模式，会提示更新beta版，我又有强迫症，就更新了。结果就悲剧了<br>在网上找到，发现只需要重新xcode的命令行工具就可以了。安装命令如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xcode-select --install</span><br></pre></td></tr></table></figure>
         </section>
     </article>
     
         
   </div>
   <aside>
+    
+    <div class="toc-container">
+        <h1>目录</h1>
+        <div class="content">
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#快捷键"><span class="toc-number">1.</span> <span class="toc-text">快捷键</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#删除账号重新设置"><span class="toc-number">2.</span> <span class="toc-text">删除账号重新设置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mac-更新系统git命令不好使"><span class="toc-number">3.</span> <span class="toc-text">mac 更新系统git命令不好使</span></a></li></ol>
+        </div>
+    </div>
     
   </aside>
 </main>

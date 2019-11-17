@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang=zh-CN>
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+    <link rel="icon" href="">
+  
+    
+  <title>记录使用loadsh的踩的坑 | 奋斗的斗斗的博客</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/lib/jquery.fancybox.min.css">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+  <header>
+  <div class="header-container">
+    <a class="logo" href="/">
+      <span>奋斗的斗斗的博客</span>
+    </a>
+    <ul class="right-header">
+      
+        <li class="nav-item">
+          
+            <a href="/" class="item-link">首页</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/about" class="item-link">关于</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/archives" class="item-link">归档</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/tags" class="item-link">标签</a>
+          
+        </li>
+      
+    </ul>
+  </div>
+</header>
+
+  <main id="post">
+  <div class="content">
+    <article>
+        <section class="content markdown-body">
+          <h1>记录使用loadsh的踩的坑</h1>
+          <div class="post-meta">
+            <i class="fa fa-calendar" aria-hidden="true"></i> <time>2019年11月17日</time>
+            
+              | <i class="fa fa-folder-open-o" aria-hidden="true"></i> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/js/">js</a>
+  </div>
+
+
+
+            
+            
+              | 
+                  <i class="fa fa-tags" aria-hidden="true"></i>
+                
+               
+  <a href="/tags/#js" class="tag">js</a>
+
+  <a href="/tags/#loadsh" class="tag">loadsh</a>
+
+  <a href="/tags/#trimStart" class="tag">trimStart</a>
+
+
+            
+          </div>
+          <p>开发nodejs后端，基本都要使用到loadsh这个module，loadsh是一个强大的工具包，里面提供了大量的关于Array，String操作的方法，<br>对于我们的开发提供了很大的便利，但是如果对于它提供的方法不了解的话，可能就会产生一些不必要的麻烦</p>
+<h2 id="trimStart"><a href="#trimStart" class="headerlink" title="trimStart"></a>trimStart</h2><p><a href="https://www.lodashjs.com/docs/latest#_trimstartstring-charswhitespace" target="_blank" rel="noopener">查看中文官网的介绍</a>，我们可以看到如下的介绍：</p>
+<p><img src="/2019/11/17/loadsh-trimStart/trimStart-1.png" alt="trimStart-1"></p>
+<p>该方法是用来移除字符串前面的指定的<code>空格</code>和<strong>字符</strong>，可以看到第二个参数是一个<code>string</code>类型。这里请重点关注一下<strong>字符</strong>。<br>接下来我们就可以在工作中使用该方法了，然后我写了一个如下的代码，就悲剧了。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> _ = <span class="built_in">require</span>(<span class="string">'loadsh'</span>);</span><br><span class="line"><span class="keyword">let</span> no = <span class="string">'2019001'</span>;</span><br><span class="line"><span class="keyword">let</span> number = _.trimStart(no,<span class="string">'2019'</span>);</span><br><span class="line">number = +number++;</span><br></pre></td></tr></table></figure>
+<p>如上的代码是一个用来生成order编码的代码，获取一个最新的编码，去掉了年份信息，对序号进行加1的操作，期望得到number为2，实际得到number为1。</p>
+<p>这里的关键是<code>trimStart</code>方法是对字符进行处理，不是按照字符串进行处理，也就是说，我们传入的<code>2019</code>会被拆成<code>2,0,1,9</code>四个字符进行处理，这样处理完毕的<br><code>number</code>就是一个空字符串，而不是期望获得的<code>001</code>。</p>
+<p>这里因为我们知道序号就是最后三位，所以我们可以使用<code>slice</code>方法直接获得最后三位字符。</p>
+
+        </section>
+    </article>
+    
+        
+  </div>
+  <aside>
+    
+    <div class="toc-container">
+        <h1>目录</h1>
+        <div class="content">
+            <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#trimStart"><span class="toc-number">1.</span> <span class="toc-text">trimStart</span></a></li></ol>
+        </div>
+    </div>
+    
+  </aside>
+</main>
+
+
+
+  <footer>
+  <div class="copyright">
+    <div>
+      &copy; 2019 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a>&nbsp
+    </div>
+    <div>
+      Theme by <a href="https://github.com/lewis-geek/hexo-theme-Aath" target="_blank">Aath</a>
+    </div>
+  </div>
+</footer>
+
+
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="/lib/in-view.min.js"></script>
+<script src="/lib/lodash.min.js"></script>
+<script>
+  var isDown = true
+  var oldY = 0
+  inView.offset(50)
+
+  document.body.addEventListener('touchstart', function(){});
+  
+  window.addEventListener('scroll', _.throttle(e => {
+    var currentY = window.scrollY
+    if((oldY - currentY) < 0) {
+      isDown = true
+    } else {
+      isDown = false
+    }
+    oldY = currentY
+  }, 250))
+
+  $("article img").each(function() {
+      var strA = "<a data-fancybox='gallery' href='" + this.src + "'></a>";
+      $(this).wrapAll(strA);
+  });
+
+  $('.toc-link').each(function() {
+      var href = $(this).attr("href");
+      
+      inView(href).on('exit', () => {
+        if (isDown) {
+          handleActive(href)
+        }
+      })
+
+      inView(href).on('enter', () => {
+        if (!isDown) {
+          handleActive(href)
+        }
+      })
+
+      this.onclick = function(e) {
+        var pos = $(href).offset().top - 10;
+        $("html,body").animate({scrollTop: pos}, 300);
+        setTimeout(() => {
+          handleActive(href)
+        }, 350)
+        return false
+      }
+  })
+
+  function handleActive(href) {
+    document.querySelectorAll('.toc-link').forEach(elm => {
+      elm.classList.remove('active')
+    })
+    document.querySelector(".toc [href='"+ href +"']").classList.add('active')
+  }
+</script>
+<script src="/lib/jquery.fancybox.min.js"></script>
+
+
+</body>
+</html>
