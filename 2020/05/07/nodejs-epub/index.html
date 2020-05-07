@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang=zh-CN>
+  <head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  
+    <link rel="icon" href="">
+  
+    
+  <title>nodejs 制作 epub书籍 | 奋斗的斗斗的博客</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/lib/jquery.fancybox.min.css">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+  <header>
+  <div class="header-container">
+    <a class="logo" href="/">
+      <span>奋斗的斗斗的博客</span>
+    </a>
+    <ul class="right-header">
+      
+        <li class="nav-item">
+          
+            <a href="/" class="item-link">首页</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/about" class="item-link">关于</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/archives" class="item-link">归档</a>
+          
+        </li>
+      
+        <li class="nav-item">
+          
+            <a href="/tags" class="item-link">标签</a>
+          
+        </li>
+      
+    </ul>
+  </div>
+</header>
+
+  <main id="post">
+  <div class="content">
+    <article>
+        <section class="content markdown-body">
+          <h1>nodejs 制作 epub书籍</h1>
+          <div class="post-meta">
+            <i class="fa fa-calendar" aria-hidden="true"></i> <time>2020年05月07日</time>
+            
+              | <i class="fa fa-folder-open-o" aria-hidden="true"></i> 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nodejs/">nodejs</a>
+  </div>
+
+
+
+            
+            
+              | 
+                  <i class="fa fa-tags" aria-hidden="true"></i>
+                
+               
+  <a href="/tags/#nodejs" class="tag">nodejs</a>
+
+  <a href="/tags/#epub" class="tag">epub</a>
+
+
+            
+          </div>
+          <p>使用nodejs制作epub书籍，代码记录</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> EpubPress = <span class="built_in">require</span>(<span class="string">'epub-press-js'</span>);</span><br><span class="line"><span class="keyword">const</span> Thenjs = <span class="built_in">require</span>(<span class="string">'thenjs'</span>);</span><br><span class="line"><span class="keyword">const</span> cheerio = <span class="built_in">require</span>(<span class="string">'cheerio'</span>);</span><br><span class="line"><span class="keyword">const</span> supertest = <span class="built_in">require</span>(<span class="string">'supertest'</span>);</span><br><span class="line"><span class="keyword">const</span> _ = <span class="built_in">require</span>(<span class="string">'lodash'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> url = <span class="string">'https://wangdoc.com/es6/'</span>;</span><br><span class="line"><span class="keyword">let</span> baseUrl = <span class="string">'https://wangdoc.com/es6/'</span>;</span><br><span class="line"><span class="keyword">const</span> request = supertest(url);</span><br><span class="line"></span><br><span class="line">Thenjs(<span class="function"><span class="params">cont</span> =&gt;</span> &#123;</span><br><span class="line">    request.get(<span class="string">''</span>).end(cont);</span><br><span class="line">&#125;).then(<span class="function">(<span class="params">cont, result</span>) =&gt;</span> &#123;</span><br><span class="line">    content = result.text;</span><br><span class="line">    <span class="keyword">let</span> $ = cheerio.load(content);</span><br><span class="line">    <span class="keyword">let</span> urlList = $(<span class="string">'.panel-menu .panel-block aside .menu-list li a'</span>).toArray();</span><br><span class="line">    <span class="keyword">if</span> (_.isEmpty(urlList)) &#123;</span><br><span class="line">        <span class="keyword">return</span> cont(<span class="string">'not get url list'</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">let</span> list = [];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> urlEle <span class="keyword">of</span> urlList) &#123;</span><br><span class="line">        <span class="keyword">let</span> href = $(urlEle).attr(<span class="string">'href'</span>);</span><br><span class="line">        href = href.substring(<span class="number">2</span>);</span><br><span class="line">        list.push(baseUrl + href);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">console</span>.log(list);</span><br><span class="line">    cont(<span class="literal">null</span>, list);</span><br><span class="line">&#125;).then(<span class="function">(<span class="params">cont, list</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> ebook = <span class="keyword">new</span> EpubPress(&#123;</span><br><span class="line">        title: <span class="string">'ECMAScript 6 - ruanyifeng'</span>,</span><br><span class="line">        description: <span class="string">'ECMAScript 6 '</span>,</span><br><span class="line">        urls: list</span><br><span class="line">    &#125;);</span><br><span class="line">    ebook.publish().then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> ebook.download(<span class="string">'epub'</span>);  <span class="comment">// Default epub</span></span><br><span class="line">    &#125;).then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        cont(<span class="literal">null</span>, <span class="literal">null</span>)</span><br><span class="line">    &#125;).catch(<span class="function">(<span class="params">error</span>) =&gt;</span> &#123;</span><br><span class="line">        cont(<span class="string">`Error: <span class="subst">$&#123;error&#125;</span>`</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;).fin(<span class="function">(<span class="params">cont, err, arg</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(err, arg);</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+        </section>
+    </article>
+    
+        
+  </div>
+  <aside>
+    
+  </aside>
+</main>
+
+
+
+  <footer>
+  <div class="copyright">
+    <div>
+      &copy; 2020 | Powered by <a href="https://hexo.io" target="_blank">Hexo</a>&nbsp
+    </div>
+    <div>
+      Theme by <a href="https://github.com/lewis-geek/hexo-theme-Aath" target="_blank">Aath</a> &nbsp |
+    </div>
+    <div style="color:#080808">
+       &nbsp <blod><a href="http://www.beian.miit.gov.cn"> 京ICP备18025966号-1</a></blod>
+    </div>
+  </div>
+</footer>
+
+
+<script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="/lib/in-view.min.js"></script>
+<script src="/lib/lodash.min.js"></script>
+<script>
+  var isDown = true
+  var oldY = 0
+  inView.offset(50)
+
+  document.body.addEventListener('touchstart', function(){});
+  
+  window.addEventListener('scroll', _.throttle(e => {
+    var currentY = window.scrollY
+    if((oldY - currentY) < 0) {
+      isDown = true
+    } else {
+      isDown = false
+    }
+    oldY = currentY
+  }, 250))
+
+  $("article img").each(function() {
+      var strA = "<a data-fancybox='gallery' href='" + this.src + "'></a>";
+      $(this).wrapAll(strA);
+  });
+
+  $('.toc-link').each(function() {
+      var href = $(this).attr("href");
+      
+      inView(href).on('exit', () => {
+        if (isDown) {
+          handleActive(href)
+        }
+      })
+
+      inView(href).on('enter', () => {
+        if (!isDown) {
+          handleActive(href)
+        }
+      })
+
+      this.onclick = function(e) {
+        var pos = $(href).offset().top - 10;
+        $("html,body").animate({scrollTop: pos}, 300);
+        setTimeout(() => {
+          handleActive(href)
+        }, 350)
+        return false
+      }
+  })
+
+  function handleActive(href) {
+    document.querySelectorAll('.toc-link').forEach(elm => {
+      elm.classList.remove('active')
+    })
+    document.querySelector(".toc [href='"+ href +"']").classList.add('active')
+  }
+</script>
+<script src="/lib/jquery.fancybox.min.js"></script>
+
+
+</body>
+</html>
