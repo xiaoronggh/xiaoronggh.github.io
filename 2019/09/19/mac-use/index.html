@@ -91,7 +91,7 @@
 </ul>
 <p>注意：有时候你会发现开机时，你明明按了<code>Command + S</code> 或者是 <code>Command + S + fn</code>可就是没有进入单一用户模式，<br>还是需要你输入密码，如果你知道密码，输入密码之后就能进入单一用户模式了，否则不能进入。就不要一直关机重启试了</p>
 <h2 id="mac-更新系统git命令不好使"><a href="#mac-更新系统git命令不好使" class="headerlink" title="mac 更新系统git命令不好使"></a>mac 更新系统git命令不好使</h2><p>因为用的是公司的电脑，默认是开发模式，会提示更新beta版，我又有强迫症，就更新了。结果就悲剧了<br>在网上找到，发现只需要重新xcode的命令行工具就可以了。安装命令如下：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xcode-select --install</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">xcode-select --install</span><br><span class="line"><span class="meta">#</span> npm 安装包时出现 No Xcode or CLT version detected!</span><br><span class="line"><span class="meta">#</span> 先执行以下命令卸载，然后再重新安装下</span><br><span class="line">sudo rm -rf $(xcode-select -print-path)</span><br></pre></td></tr></table></figure>
         </section>
     </article>
     
